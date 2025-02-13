@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -104,6 +105,9 @@ public class MovieService
     }
 
     System.out.println(">>> Filtered Movie List Size: " + jFilteredMoviesList.size()); 
+
+    mySQLMovieRepository.batchInsertMovies(jFilteredMoviesList);
+    mongoMovieRepository.batchInsertMovies(jFilteredMoviesList);
   }
   
 
