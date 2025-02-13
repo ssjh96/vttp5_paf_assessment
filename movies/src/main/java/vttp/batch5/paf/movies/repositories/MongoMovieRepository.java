@@ -1,7 +1,30 @@
 package vttp.batch5.paf.movies.repositories;
 
-public class MongoMovieRepository {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Repository;
 
+import vttp.batch5.paf.movies.utils.MongoParams;
+
+@Repository
+public class MongoMovieRepository 
+{
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    // Helper method for Task 2.1
+    public boolean checkMongoInserted()
+    {
+        long count = mongoTemplate.getCollection(MongoParams.C_MOVIES).countDocuments();
+        System.out.println(">>>>> Mongo count: " + count);
+
+        if (count <= 0)
+        {
+        return false;
+        }
+
+        return true;
+    }
 
  // TODO: Task 2.3
  // You can add any number of parameters and return any type from the method
