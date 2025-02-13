@@ -154,7 +154,7 @@ public class MongoMovieRepository
 public List<Document> getProlificDirectors(int limit)
 {
     GroupOperation groupByDirector = Aggregation.group("director")
-                        .sum("movies_count").as("movies_count")
+                        .sum("movies_count").as("movies_count");
 
     LimitOperation limitOperation = Aggregation.limit(limit);
 
