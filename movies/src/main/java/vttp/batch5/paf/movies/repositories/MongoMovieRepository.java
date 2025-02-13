@@ -8,7 +8,9 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -138,42 +140,29 @@ public class MongoMovieRepository
  // Write the native Mongo query you implement in the method in the comments
  //
 
-// db.imdb.aggregate([
-//   {
-//     $group: {
-//       _id: "$director",
-//       movies_count: { $sum: 1 },
-//       total_revenue: { $sum: "$revenue" },
-//       total_budget: { $sum: "$budget" }
-//     }
-//   },
-//   {
-//     $project: {
-//       director_name: "$_id",
-//       movies_count: 1,
-//       total_revenue: 1,
-//       total_budget: 1,
-//       profit_or_loss: { $subtract: ["$total_revenue", "$total_budget"] },
-//       _id: 0
-//     }
-//   },
-//   {$limit: 10}
-// ]);
+//  db.imdb.aggregate([
+//     {
+//       "$group": {
+//         "_id": "$director",
+//         "movies_count": { "$sum": 1 }
+//       }
+//     },
+//     {"$limit": 10}
+//   ])
+  
 
 public List<Document> getProlificDirectors(int limit)
 {
     GroupOperation groupByDirector = Aggregation.group("director")
-                        .count().as("movies_count")
-                        .sum("revnue").as("total_revenue")
-                        .sum("budget").as("total_budget");
+                        .sum("movies_count").as("movies_count")
 
-    ProjectionOperation projectFields = Aggregation.project()
-                                        .and("_id").as("director_name")
-                                        .and("movies_count").as("movies_count")
-                                        .and("total_revenue").as("total_revenue")
-                                        .and("total_budget").as("total_budget");
-                                        
-    return null;
+    LimitOperation limitOperation = Aggregation.limit(limit);
+
+    Aggregation pipeLine = Aggregation.newAggregation(groupByDirector, limitOperation);
+
+    AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(pipeLine, MongoParams.C_IMDB, Document.class);
+
+    return aggregationResults.getMappedResults();
 }
 
 }
